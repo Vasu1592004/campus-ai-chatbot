@@ -357,6 +357,17 @@ html, body {
     filter: blur(10px);
     z-index: -1;
 }
+.chat-header {
+    position: relative;
+}
+
+.mobile-menu-btn {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 
 /* Left chat ID display */
 #chatIdDisplay {
@@ -973,10 +984,7 @@ textarea::-webkit-scrollbar {
     }
 }
 
-@media (max-width: 700px) {
-    .sidebar {
-        display: none;
-    }
+
 
     .bot-msg, .user-msg {
         max-width: 80%;
@@ -987,7 +995,7 @@ textarea::-webkit-scrollbar {
         width: 46px;
         height: 46px;
     }
-}
+
 
 @media (max-width: 500px) {
 
@@ -1972,5 +1980,67 @@ a:hover {
 
     .sidebar.show {
         left: 0;
+    }
+}
+/* MOBILE MENU BUTTON */
+.mobile-menu-btn {
+    display: none;
+    position: absolute;
+    left: 14px;
+    font-size: 28px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+/* MOBILE SIDEBAR CSS */
+@media (max-width: 700px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;    /* HIDDEN INITIALLY */
+        width: 260px;
+        height: 100vh;
+
+        background: rgba(10, 13, 25, 0.95);
+        backdrop-filter: blur(20px);
+
+        padding-top: 70px;
+        transition: left 0.3s ease;
+        z-index: 9999;
+        overflow-y: auto;
+    }
+
+    .sidebar.show {
+        left: 0;   /* SLIDE IN */
+    }
+
+    /* Display hamburger button in mobile */
+    .mobile-menu-btn {
+        display: block;
+    }
+}
+
+
+/* Default desktop behavior stays normal */
+#chatIdDisplay {
+    position: absolute;
+    left: 80px;   /* gives space for hamburger */
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+}
+@media (max-width: 700px) {
+
+    /* Hamburger button visible */
+    .mobile-menu-btn {
+        display: block;
+        left: 16px;
+    }
+
+    /* Move chat title right so they don't overlap */
+    #chatIdDisplay {
+        left: 50px;   /* perfect spacing */
     }
 }
