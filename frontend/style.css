@@ -1,0 +1,1938 @@
+/* ----------------------------------------------------------
+   0. ROOT VARIABLES
+---------------------------------------------------------- */
+:root {
+    --bg-main: #0b0d1a;
+    --bg-sidebar: #0f1225;
+    --glass: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.1);
+    --bot-gradient: linear-gradient(135deg, #2d3cff, #00eaff);
+    --user-gradient: linear-gradient(135deg, #00ffd5, #6f7cff);
+    --text: #ffffff;
+    --muted: #9aa0c7;
+    --bubble-radius: 16px;
+}
+
+/* ----------------------------------------------------------
+   1. GLOBAL RESET
+---------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #1c1f3a, #070814);
+    color: var(--text);
+}
+
+/* ----------------------------------------------------------
+   2. APP LAYOUT STRUCTURE
+---------------------------------------------------------- */
+.app {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+
+    /* Dark glass background */
+    background: rgba(10, 13, 25, 0.55);
+    backdrop-filter: blur(18px);
+
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+
+    padding: 20px 18px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    position: relative;
+    z-index: 2;
+}
+
+/* Soft neon glow behind sidebar */
+.sidebar::before {
+    content: "";
+    position: absolute;
+    left: -40px;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    border-radius: 0px 30px 30px 0;
+
+    background: radial-gradient(
+        circle at left center,
+        rgba(0, 255, 255, 0.25),
+        rgba(150, 0, 255, 0.22),
+        transparent 70%
+    );
+
+    filter: blur(45px);
+    z-index: -1;
+}
+
+/* RECENT TITLE */
+.history-title {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+    margin-bottom: 6px;
+    letter-spacing: 0.4px;
+}
+
+
+/* ----------------------------------------------------------
+   3. NEW CHAT BUTTON
+---------------------------------------------------------- */
+.new-chat {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    background: var(--bot-gradient);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.new-chat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 234, 255, 0.5);
+}
+
+.new-chat:active {
+    transform: scale(0.97);
+}
+
+/* ----------------------------------------------------------
+   4. HISTORY SECTION
+---------------------------------------------------------- */
+
+/* WRAPPER */
+.history {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+/* EACH HISTORY ITEM */
+.history-item {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(20, 25, 40, 0.55); /* glass background */
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+
+    transition: 0.25s ease;
+}
+
+/* MIXED COLOR GRADIENT BORDER */
+.history-item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1.5px;
+
+    background: linear-gradient(
+        135deg,
+        #00eaff,
+        #00c7ff,
+        #0077ff,
+        #7d00ff
+    );
+
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    z-index: -1;
+}
+
+/* OUTER GLOW */
+.history-item::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 12px;
+
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 200, 255, 0.32),
+        rgba(130, 0, 255, 0.18),
+        transparent 70%
+    );
+
+    filter: blur(12px);
+    z-index: -2;
+}
+
+/* HOVER */
+.history-item:hover {
+    background: rgba(25, 30, 45, 0.7);
+    transform: translateY(-1px);
+    box-shadow:
+        0 0 15px rgba(0, 255, 255, 0.25),
+        0 0 20px rgba(140, 0, 255, 0.25);
+}
+
+
+
+.history-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+
+/* Three-dot menu button */
+/* 3-dots button inside history list */
+.menu-btn {
+    margin-left: auto;              /* pushes it to the right */
+    padding: 6px 10px;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+
+    border-radius: 8px;
+    transition: 0.25s ease;
+
+    display: flex;
+    align-items: center;
+}
+.menu-btn:hover {
+    background: rgba(0, 255, 255, 0.15);
+    color: #00eaff;
+}
+
+
+/* ----------------------------------------------------------
+   5. GLOBAL MENU (Rename/Delete)
+---------------------------------------------------------- */
+/* Floating global menu */
+.global-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 160px;
+    padding: 8px;
+
+    background: rgba(15, 20, 35, 0.75);
+    backdrop-filter: blur(14px);
+
+    border-radius: 12px;
+    border: 1px solid rgba(0, 255, 255, 0.18);
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    box-shadow:
+        0 0 12px rgba(0, 255, 255, 0.22),
+        0 0 20px rgba(150, 0, 255, 0.18);
+
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+    transition: 0.22s ease;
+
+    z-index: 999;
+}
+.global-menu.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+
+
+.menu-item {
+    padding: 10px 12px;
+
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+
+    color: #dffaff;
+    font-size: 14px;
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+.menu-item:hover {
+    background: rgba(0, 255, 255, 0.15);
+    color: #00eaff;
+
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.25),
+        0 0 14px rgba(150, 0, 255, 0.25);
+
+    transform: translateX(3px);
+}
+.menu-item.rename:hover {
+    color: #34d5ff;
+}
+.menu-item.delete:hover {
+    background: rgba(255, 45, 45, 0.20);
+    color: #ff6969;
+    box-shadow:
+        0 0 12px rgba(255, 80, 80, 0.3),
+        0 0 18px rgba(255, 0, 0, 0.25);
+}
+
+/* ----------------------------------------------------------
+   6. CHAT AREA
+---------------------------------------------------------- */
+.chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-main);
+    position: relative;
+}
+
+/* CHAT HEADER */
+.chat-header {
+    height: 60px;
+    padding: 0 22px;
+
+    background: rgba(15, 20, 35, 0.45);
+    backdrop-filter: blur(18px);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+
+    position: relative;
+    z-index: 3;
+}
+
+/* Soft glow under the header */
+.chat-header::after {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 255, 255, 0.18),
+        rgba(160, 0, 255, 0.12),
+        transparent
+    );
+
+    filter: blur(10px);
+    z-index: -1;
+}
+
+/* Left chat ID display */
+#chatIdDisplay {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+}
+
+/* Center title (CampusAI) */
+.chat-title-center {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    color: white; /* professional single color */
+
+    text-shadow:
+        0 0 10px rgba(74, 168, 255, 0.35),
+        0 0 18px rgba(74, 168, 255, 0.25);
+
+    pointer-events: none; /* keep UI clean */
+}
+
+
+
+/* Right side status indicator */
+.status {
+    font-size: 14px;
+    color: rgba(80,255,120,0.95);
+}
+
+
+/* ----------------------------------------------------------
+   7. MESSAGE CONTAINER
+---------------------------------------------------------- */
+/* MAIN MESSAGE AREA */
+.messages {
+    flex: 1;
+    width: 100%;
+    padding: 20px 26px 28px; /* top | left/right | bottom */
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    position: relative;
+    z-index: 1;
+}
+
+/* Subtle background glow behind messages */
+.messages::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: radial-gradient(
+        circle at top center,
+        rgba(0, 255, 255, 0.10),
+        rgba(150, 0, 255, 0.10),
+        transparent 70%
+    );
+
+    filter: blur(40px);
+    z-index: -1;
+}
+
+/* Smooth scrolling */
+.messages {
+    scroll-behavior: smooth;
+}
+
+/* Remove scrollbar (Chrome/Edge) */
+.messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* ----------------------------------------------------------
+   8. MESSAGE BUBBLES
+---------------------------------------------------------- */
+.bot-msg,
+.user-msg {
+    padding: 14px 16px;
+    margin: 6px 0;
+    max-width: 60%;
+    width: fit-content;
+    display: inline-block;
+    line-height: 1.35;
+    border-radius: 16px;
+}
+
+/* BOT on LEFT */
+.bot-msg {
+    align-self: flex-start;
+
+    background: transparent;
+    color: #e9f5ff;
+
+    border-radius: 14px;
+
+    /* subtle neon border */
+    border: 1px solid rgba(0, 200, 255, 0.25);
+
+    /* Glow */
+    box-shadow:
+        0 0 8px rgba(0, 255, 255, 0.18),
+        0 0 14px rgba(150, 0, 255, 0.12);
+}
+
+/* USER on RIGHT */
+.user-msg {
+    align-self: flex-end;
+
+    background: transparent;
+    color: #c8faff;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(0, 255, 255, 0.35);
+
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.25),
+        0 0 18px rgba(100, 0, 255, 0.15);
+}
+
+/* ----------------------------------------------------------
+   9. IMAGE-ONLY MESSAGES
+---------------------------------------------------------- */
+.image-msg {
+    padding: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.image-msg img {
+    width: 100%;
+    max-width: 260px;
+    border-radius: 14px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Multiple-image grid */
+.bubble-files-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.bubble-files-grid.single {
+    grid-template-columns: 1fr;
+}
+
+.bubble-files-grid.multiple {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.bubble-file {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+/* ----------------------------------------------------------
+   10. CHAT INPUT AREA
+---------------------------------------------------------- */
+.chat-input {
+    padding: 8px 14px;
+    background: rgba(10, 13, 25, 0.55);
+    backdrop-filter: blur(18px);
+
+    border-top: 1px solid rgba(255,255,255,0.07);
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    position: relative;
+    z-index: 5;
+}
+
+/* File preview chips */
+
+
+/* ----------------------------------------------------------
+   11. INPUT ROW (Attach + Input + Send)
+---------------------------------------------------------- */
+.input-row {
+    width: 100%;
+    background: rgba(20, 25, 40, 0.55);
+    backdrop-filter: blur(10px);
+
+    padding: 12px 16px;
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    border: 1px solid rgba(0, 255, 255, 0.15);
+
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.15),
+        0 0 14px rgba(150, 0, 255, 0.12);
+}
+
+#input {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #dff8ff;
+    font-size: 15px;
+    font-weight: 400;
+
+    max-height: 140px;
+}
+
+
+/* Textarea (Message bar) */
+.chat-input textarea {
+    flex: 1;
+    width: 100%;
+    min-height: 52px;
+    max-height: 150px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* ----------------------------------------------------------
+   12. ATTACH BUTTON + MENU
+---------------------------------------------------------- */
+.menu-wrapper {
+    position: relative;
+}
+
+.attach-btn {
+    font-size: 25px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    color: rgba(255,255,255,0.75);
+
+    transition: 0.25s ease;
+}
+
+.attach-btn:hover {
+    color: #4AA8FF;
+    transform: scale(1.1);
+}
+
+
+/* Attach dropdown */
+/* ATTACH MENU PANEL */
+.attach-menu {
+    position: absolute;
+    bottom: 52px; /* floats above input bar */
+    left: 0;
+
+    width: 170px;
+    padding: 10px;
+
+    background: rgba(15, 20, 35, 0.70);
+    backdrop-filter: blur(14px);
+
+    border-radius: 14px;
+    border: 1px solid rgba(0, 255, 255, 0.18);
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    box-shadow:
+        0 0 12px rgba(0, 255, 255, 0.25),
+        0 0 18px rgba(140, 0, 255, 0.20);
+
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: 0.25s ease;
+}
+
+/* Active (shown) state */
+.attach-menu.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0px);
+}
+
+
+.attach-menu button {
+    width: 100%;
+    padding: 8px 10px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+
+    color: #e9f7ff;
+    font-size: 14px;
+
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+/* Icon color */
+.attach-menu button svg path,
+.attach-menu button svg rect,
+.attach-menu button svg circle {
+    stroke: #b9ecff;
+    transition: 0.25s ease;
+}
+
+/* Hover effects */
+.attach-menu button:hover {
+    background: rgba(0, 255, 255, 0.12);
+    border-color: rgba(0, 255, 255, 0.35);
+    transform: translateX(3px);
+}
+
+.attach-menu button:hover svg path,
+.attach-menu button:hover svg rect,
+.attach-menu button:hover svg circle {
+    stroke: #4AA8FF;
+}
+
+
+/* ----------------------------------------------------------
+   13. SEND BUTTON
+---------------------------------------------------------- */
+.send-btn {
+    background: linear-gradient(135deg, #00eaff, #008cff);
+    border: none;
+    outline: none;
+
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: 0.25s ease;
+
+    box-shadow:
+        0 0 12px rgba(0, 255, 255, 0.35),
+        0 0 20px rgba(0, 140, 255, 0.25);
+}
+
+.send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.45),
+        0 0 30px rgba(0, 140, 255, 0.45);
+}
+
+
+
+
+/* ----------------------------------------------------------
+   14. SCROLLBAR STYLING
+---------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------
+   15. ADVANCED BUBBLE EFFECTS (Depth, Shadows)
+---------------------------------------------------------- */
+.bot-msg,
+.user-msg {
+    backdrop-filter: blur(4px);
+    position: relative;
+    animation: fadeUp 0.25s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Drop-shadows */
+.bot-msg {
+    box-shadow: 0 6px 16px rgba(0, 150, 255, 0.25);
+}
+.user-msg {
+    box-shadow: 0 6px 16px rgba(0, 255, 210, 0.25);
+}
+
+/* ----------------------------------------------------------
+   16. FILE BUBBLES INSIDE TEXT MESSAGES
+---------------------------------------------------------- */
+.bubble-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.bubble-files img {
+    max-width: 140px;
+    max-height: 140px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.bubble-file {
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.18);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+/* ----------------------------------------------------------
+   17. IMAGE GRID SYSTEM (Corrected)
+---------------------------------------------------------- */
+.bubble-files-grid {
+    display: grid;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.bubble-files-grid.single {
+    grid-template-columns: 1fr;
+}
+
+.bubble-files-grid.multiple {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.bubble-files-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+    object-fit: cover;
+}
+
+/* ----------------------------------------------------------
+   18. FILE PREVIEW ROW FIXES
+---------------------------------------------------------- */
+.file-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    max-height: 180px;
+    overflow-y: auto;
+
+    padding: 6px 2px;
+    margin-bottom: 6px;
+
+    border-radius: 10px;
+}
+
+
+.file-chip {
+    position: relative;
+
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+
+    background: rgba(15, 20, 35, 0.55);
+    backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(0, 255, 255, 0.22);
+
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.18),
+        0 0 18px rgba(140, 0, 255, 0.18);
+
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.file-chip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.file-chip span {
+    cursor: pointer;
+}
+.file-chip:hover {
+    transform: scale(1.05);
+    box-shadow:
+        0 0 16px rgba(0, 255, 255, 0.28),
+        0 0 22px rgba(140, 0, 255, 0.22);
+}
+/* ----------------------------------------------------------
+   19. ATTACH BUTTON BADGE (File Count)
+---------------------------------------------------------- */
+.menu-wrapper .attach-btn::after {
+    content: attr(data-count);
+    position: relative;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    background: #ff4757;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.menu-wrapper[data-has-files="true"] .attach-btn::after {
+    display: flex;
+}
+
+/* ----------------------------------------------------------
+   20. INPUT AREA SHAPING + FIXES
+---------------------------------------------------------- */
+.chat-input {
+    backdrop-filter: blur(12px);
+}
+
+.chat-input textarea:focus {
+    box-shadow: 0 0 0 2px rgba(0,235,255,0.3);
+}
+
+/* Prevent collapse */
+textarea::-webkit-scrollbar {
+    width: 4px;
+}
+
+/* ----------------------------------------------------------
+   21. HOVER EFFECTS FOR BUTTONS & MENUS
+---------------------------------------------------------- */
+.attach-menu button {
+    transition: background 0.15s ease, padding-left 0.15s ease;
+}
+
+.attach-menu button:hover {
+    padding-left: 18px;
+}
+
+/* Three-dot hover */
+.menu-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Rename/Delete options (global menu) */
+.menu-item.delete {
+    background: rgba(255, 45, 45, 0.20);
+    color: #ff6969;
+
+}
+
+/* ----------------------------------------------------------
+   22. RESPONSIVE + MOBILE FIXES
+---------------------------------------------------------- */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .bot-msg, .user-msg {
+        max-width: 70%;
+    }
+
+    .attach-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        display: none;
+    }
+
+    .bot-msg, .user-msg {
+        max-width: 80%;
+        font-size: 15px;
+    }
+
+    .send-btn {
+        width: 46px;
+        height: 46px;
+    }
+}
+
+@media (max-width: 500px) {
+
+    #messages {
+        padding: 16px;
+    }
+
+    .chat-header h3 {
+        font-size: 16px;
+    }
+
+    .attach-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .send-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .chat-input textarea {
+        font-size: 14px;
+        padding: 12px 14px;
+    }
+}
+
+/* ----------------------------------------------------------
+   23. ANIMATIONS FOR FILE CHIPS
+---------------------------------------------------------- */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.file-chip {
+    animation: slideIn 0.25s ease;
+}
+
+/* ----------------------------------------------------------
+   24. DRAG & DROP SUPPORT STYLING (Optional Future)
+---------------------------------------------------------- */
+.drag-over {
+    outline: 2px dashed #00eaff;
+    background: rgba(0, 234, 255, 0.1);
+}
+
+/* ----------------------------------------------------------
+   25. IMPORTANT FIX — MESSAGE ALIGNMENT PRIORITY
+---------------------------------------------------------- */
+.bot-msg.image-msg {
+    align-self: flex-start !important;
+}
+
+.user-msg.image-msg {
+    align-self: flex-end !important;
+}
+
+/* Prevent layout shift */
+.image-msg {
+    max-width: 60%;
+}
+
+/* ----------------------------------------------------------
+   26. SAFE-LINE CLAMPING (optional)
+---------------------------------------------------------- */
+.bot-msg,
+.user-msg {
+    overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------------
+   Continue in PART 3…
+---------------------------------------------------------- */
+/* ----------------------------------------------------------
+   27. CHAT TITLE + INLINE RENAME (Future support)
+---------------------------------------------------------- */
+.rename-input {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    outline: none;
+}
+
+/* ----------------------------------------------------------
+   28. MESSAGE TIMESTAMPS (Optional)
+---------------------------------------------------------- */
+
+
+.bot-time {
+    text-align: left;
+}
+
+.user-msg .msg-time {
+    text-align: right;
+    color: #000000;
+}
+
+.bot-msg .msg-time {
+    text-align: left;
+    color: #000000;
+}
+.msg-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    margin-top: 6px;
+    user-select: none;
+}
+
+
+/* ----------------------------------------------------------
+   29. ANIMATED TYPING INDICATOR (future-ready)
+---------------------------------------------------------- */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    width: fit-content;
+}
+
+.typing-indicator span {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: bounce 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+}
+
+/* ----------------------------------------------------------
+   30. FULL WIDTH FILE/IMAGE BUBBLES
+---------------------------------------------------------- */
+.file-bubble-full {
+    max-width: 90%;
+    align-self: flex-end;
+}
+
+.file-bubble-full img {
+    max-width: 100%;
+    border-radius: 14px;
+}
+
+/* ----------------------------------------------------------
+   31. TOOLTIP SUPPORT (Optional)
+---------------------------------------------------------- */
+.tooltip {
+    position: absolute;
+    padding: 6px 10px;
+    background: #000;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    transform: translateY(-6px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tooltip.show {
+    opacity: 1;
+    transform: translateY(-10px);
+    transition: 0.2s ease;
+}
+
+/* ----------------------------------------------------------
+   32. INLINE CODE BLOCK (Future AI Output)
+---------------------------------------------------------- */
+code {
+    background: rgba(255,255,255,0.12);
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+pre {
+    background: rgba(255,255,255,0.12);
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    overflow-x: auto;
+    margin-top: 6px;
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+/* ----------------------------------------------------------
+   33. LINK STYLING
+---------------------------------------------------------- */
+a {
+    color: #00eaff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* ----------------------------------------------------------
+   34. MODAL SYSTEM (optional future)
+---------------------------------------------------------- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.modal-content {
+    background: #1c1d22;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+}
+
+.modal.show {
+    display: flex;
+}
+
+/* ----------------------------------------------------------
+   35. IMAGE VIEWER (future support)
+---------------------------------------------------------- */
+.image-viewer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 200000;
+}
+
+.image-viewer img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 14px;
+}
+
+.image-viewer.show {
+    display: flex;
+}
+
+/* ----------------------------------------------------------
+   36. DRAGGABLE ELEMENTS (placeholder)
+---------------------------------------------------------- */
+.draggable {
+    cursor: grab;
+}
+.draggable:active {
+    cursor: grabbing;
+}
+
+/* ----------------------------------------------------------
+   37. ANIMATION UTILITIES
+---------------------------------------------------------- */
+.fade-in {
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.fade-up {
+    animation: fadeUp 0.3s ease;
+}
+
+.scale-in {
+    animation: scaleIn 0.2s ease;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.94); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ----------------------------------------------------------
+   38. SEARCH BAR (Future for chat list)
+---------------------------------------------------------- */
+.search-box {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: #fff;
+    border: none;
+}
+
+.search-box::placeholder {
+    color: #999;
+}
+
+/* ----------------------------------------------------------
+   39. ACTIVE CHAT HIGHLIGHT
+---------------------------------------------------------- */
+.active-chat-header {
+    background: rgba(0,234,255,0.12);
+    border-left: 2px solid #00eaff;
+}
+
+/* ----------------------------------------------------------
+   40. SCROLL TO BOTTOM BUTTON
+---------------------------------------------------------- */
+
+/* ----------------------------------------------------------
+   41. CHAT EMPTY STATE
+---------------------------------------------------------- */
+.empty-chat {
+    margin-top: 40px;
+    text-align: center;
+    color: #aaa;
+    font-size: 15px;
+}
+
+/* ----------------------------------------------------------
+   42. HOVER GLOW EFFECT
+---------------------------------------------------------- */
+.glow-hover:hover {
+    box-shadow: 0 0 18px rgba(0,234,255,0.5);
+}
+
+/* ----------------------------------------------------------
+   43. MEDIA QUERIES - EXTENDED
+---------------------------------------------------------- */
+
+@media (max-width: 390px) {
+    .bot-msg, .user-msg {
+        max-width: 90%;
+        font-size: 14px;
+    }
+
+    .attach-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .send-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .chat-input textarea {
+        min-height: 48px;
+        padding: 10px 12px;
+    }
+}
+
+/* ----------------------------------------------------------
+   44. SAFETY: ENSURE NOTHING COLLAPSES
+---------------------------------------------------------- */
+
+#messages, .chat, .app {
+    min-height: 0;
+    min-width: 0;
+}
+
+/* ----------------------------------------------------------
+   45. FINAL CLEAR FIXES
+---------------------------------------------------------- */
+
+/* Prevent bottom padding issues */
+#messages {
+    padding-bottom: 26px;
+}
+
+/* Force history scroll */
+.sidebar {
+    overflow-y: auto;
+}
+
+/* Force chat scroll */
+
+/* Fix 3-dot button overlap */
+.menu-btn {
+    z-index: 10;
+}
+
+/* Fix attach menu overlap */
+.attach-menu {
+    z-index: 9999;
+}
+
+/* Content protection */
+.chat * {
+    user-select: text;
+}
+
+/* ----------------------------------------------------------
+   END OF CLEAN 800+ LINE CSS
+---------------------------------------------------------- */
+
+
+.chat-header {
+    display: flex;
+    justify-content: center;      /* Centers title horizontally */
+    align-items: center;
+    position: relative;           /* Allows absolute positioning for status */
+}
+
+
+
+/* Move status dot to the right side */
+.chat-header .status {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* LEFT — Chat ID */
+.new-chat {
+    width: 220px;
+    padding: 12px 18px;
+    border-radius: 40px;
+
+    /* Inner background */
+    background: rgba(15, 18, 30, 0.75);
+
+    /* Text */
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+
+    /* Smooth animations */
+    transition: 0.25s ease;
+}
+
+/* Gradient border layer */
+.new-chat::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 40px;
+    padding: 2px;
+
+    background: linear-gradient(
+        135deg,
+        #00ffe7,
+        #00e1ff,
+        #0088ff,
+        #7a00ff,
+        #c600ff
+    );
+
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    z-index: -1;
+}
+
+/* GLOW around the button */
+.new-chat::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 40px;
+
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 255, 255, 0.35),
+        rgba(140, 0, 255, 0.15),
+        transparent 70%
+    );
+
+    filter: blur(18px);
+    z-index: -2;
+}
+
+
+/* Hover Effect */
+.new-chat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4),
+                0 0 35px rgba(160, 0, 255, 0.35);
+}
+
+
+/* CENTER — Bot Name */
+
+
+/* RIGHT — Online Status */
+.chat-header .status {
+    position: absolute;
+    right: 20px;
+    font-size: 12px;
+    color: #00ff9c;
+}
+
+/* FIX: Remove extra space for image-only messages */
+.image-msg {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* FIX: Reduce gap between image grid and next bubble */
+.bubble-files-grid {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* FIX: Remove top padding that creates a gap */
+.bubble-files-grid img {
+    display: block;
+    margin: 0 !important;
+}
+/* REMOVE EXTRA GAP BELOW IMAGE MESSAGES */
+.user-msg.image-msg,
+.bot-msg.image-msg {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* FIX IMAGE-ONLY GAP ISSUE */
+.image-only-msg {
+    align-self: flex-end;   /* user image on right */
+    max-width: 260px;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.bot-msg.image-only-msg {
+    align-self: flex-start;
+}
+
+.image-only-msg img {
+    width: 100%;
+    border-radius: 14px;
+    display: block;
+    margin: 0 !important;
+}
+
+
+/* Fullscreen Image Viewer */
+.image-viewer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    padding: 20px;
+}
+
+.image-viewer.show {
+    display: flex;
+    cursor: zoom-out;
+}
+
+.image-viewer img {
+    max-width: 95%;
+    max-height: 95%;
+    border-radius: 12px;
+    animation: zoomIn 0.25s ease;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ----------------------------------------------------------
+   SMOKE / FOG BACKGROUND FOR CHAT TITLE
+---------------------------------------------------------- */
+
+/* MAIN SMOKE LAYER */
+.smoke-title::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
+    filter: blur(32px);
+    animation: smokeFlow 7s infinite linear;
+    opacity: 0.55;
+    z-index: -1;
+}
+
+/* EXTRA DEPTH SMOKE LAYER */
+.smoke-title::after {
+    content: "";
+    position: absolute;
+    top: 45%;
+    left: 55%;
+    width: 200%;
+    height: 230%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0,255,255,0.25) 0%, rgba(0,255,255,0) 80%);
+    filter: blur(45px);
+    animation: smokeFlow2 12s infinite linear;
+    opacity: 0.35;
+    z-index: -1;
+}
+
+/* ANIMATIONS */
+@keyframes smokeFlow {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-52%, -48%) scale(1.15); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes smokeFlow2 {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-48%, -52%) scale(1.25); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ----------------------------------------------------------
+   ANIMATED GRADIENT MOVING TEXT FOR CAMPUSAI
+---------------------------------------------------------- */
+
+
+/* Moving Gradient Animation */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+/* Top-center scroll button */
+/* Always-visible top-center scroll button */
+.scroll-center-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 150px;
+
+    transform: translateX(-50%);
+    padding: 10px 14px;
+
+    background: rgba(15, 20, 35, 0.75);
+    backdrop-filter: blur(12px);
+
+    border-radius: 50px;
+    border: 1px solid rgba(0, 255, 255, 0.25);
+
+    color: #aaf6ff;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.25),
+        0 0 22px rgba(140, 0, 255, 0.22);
+
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s ease;
+    z-index: 20;
+}
+
+.scroll-center-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.scroll-center-btn:hover {
+    background: rgba(0, 255, 255, 0.18);
+    transform: translateX(-50%) translateY(-2px);
+
+    box-shadow:
+        0 0 18px rgba(0, 255, 255, 0.45),
+        0 0 26px rgba(150, 0, 255, 0.35);
+}
+
+
+/* Compact Bot Bubble */
+.bot-msg {
+    padding: 14px 16px;
+    margin: 6px 0;
+    max-width: 60%;
+    width: fit-content;
+    display: inline-block;
+    line-height: 1.35;
+}
+
+
+
+.bubble-time {
+    opacity: 0.75;
+    font-size: 12px;
+}
+
+
+
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    margin: 4px 0;
+}
+
+.typing-indicator span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: bounce 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Ensure only actual chat bubbles use inline-block */
+.bot-msg:not(.typing-indicator),
+.user-msg:not(.typing-indicator) {
+    display: inline-block !important;
+}
+
+
+
+
+.chat-image {
+    max-width: 250px;      /* Limit width */
+    max-height: 200px;     /* Limit height */
+    border-radius: 12px;
+    object-fit: cover;     /* Keeps image clean */
+    cursor: pointer;
+    display: block;
+    margin: 6px 0; 
+}
+
+.image-only-msg {
+    max-width: 270px;      /* Image bubble width */
+}
+
+.bubble-files-grid.single img {
+    max-width: 250px;
+}
+
+.user-image-only img,
+.bot-image-only img {
+    max-width: 260px;
+    max-height: 200px;
+    border-radius: 12px;
+    display: block;
+    margin: 6px 0;
+}
+
+.image-time {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-left: 6px;
+    margin-top: -2px;
+}
+
+/* User image: align right */
+.user-image-only {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 4px 0;
+}
+
+/* AI image: align left */
+.bot-image-only {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 4px 0;
+}
+
+.image-container {
+    display: flex;
+    flex-direction: column; /* stack image over time */
+    align-items: flex-end;  /* user side img → right */
+    width: 100%;
+    margin: 4px 0;
+}
+
+.bot-image-only.image-container {
+    align-items: flex-start; /* AI image → left */
+}
+
+.image-time {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.regen-btn {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-left: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #ffffffaa;   /* light icon color */
+}
+
+.regen-btn:hover {
+    color: #ffffff;      /* brighter on hover */
+}
+
+.history-options-btn {
+    margin-left: auto;
+    padding: 4px 6px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 16px;
+    border-radius: 6px;
+    transition: 0.25s ease;
+}
+
+.history-options-btn:hover {
+    background: rgba(0, 255, 255, 0.12);
+    color: #00eaff;
+}
+
+
+/* Signature under the input box */
+.vasu-signature {
+    margin-top: 6px;
+    margin-bottom: 4px;
+    text-align: center;
+    font-size: 12px;
+    color: #7ddfff;
+    opacity: 0.85;
+    letter-spacing: 0.3px;
+    text-shadow: 
+        0 0 4px rgba(0,255,255,0.6),
+        0 0 8px rgba(0,255,255,0.3);
+    pointer-events: none; /* Important: Does not affect clicks */
+}
+
+/* Mobile view adjustments */
+@media (max-width: 600px) {
+    .vasu-signature {
+        font-size: 11px;
+        margin-bottom: 2px;
+        opacity: 0.9;
+    }
+}
+
+/* Highlight your name with stronger glow */
+.vasu-signature span {
+    color: #ffffff;
+    text-shadow:
+        0 0 6px rgba(0, 255, 255, 1),
+        0 0 12px rgba(0, 255, 255, 0.7),
+        0 0 18px rgba(0, 255, 255, 0.5);
+}
+
+/* Hover effect for premium feel (optional) */
+.vasu-signature:hover {
+    opacity: 1;
+    text-shadow:
+        0 0 6px rgba(0, 255, 255, 1),
+        0 0 14px rgba(0, 255, 255, 0.7),
+        0 0 22px rgba(0, 255, 255, 0.5);
+}
+
+
+/* Mobile Header Centering Fix */
+/* Mobile Header Centering Fix */
+@media (max-width: 600px) {
+    .chat-header {
+        position: relative;
+        display: flex;
+        justify-content: center; 
+        align-items: center;
+        padding: 10px 0;
+    }
+
+    /* LEFT — Chat ID (New Chat) */
+    #chatIdDisplay {
+        position: absolute;
+        left: 12px;
+        display: block;
+        font-size: 14px;
+        opacity: 0.85;
+    }
+
+    /* CENTER — CampusAI Title */
+    .chat-header .chat-title-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: auto;
+        pointer-events: none;
+        font-size: 18px;
+    }
+
+    /* RIGHT — Online Status */
+    .chat-header .status {
+        position: absolute;
+        right: 12px;
+    }
+}

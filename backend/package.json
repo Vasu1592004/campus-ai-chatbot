@@ -1,0 +1,13 @@
+{
+  "name": "campusai-backend",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "openai": "^4.57.0"
+  }
+}
