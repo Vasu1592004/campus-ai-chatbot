@@ -195,6 +195,7 @@ async function sendMessage() {
     renderMessages();
     scrollToBottomInstant();
     resetInput();
+    appState.attachedFiles = [];
     saveState();
 
     // --------------------------------------------------
@@ -250,7 +251,7 @@ async function sendMessage() {
     if (isDeveloperQuestion) {
         chat.messages.push({
             role: "assistant",
-            text: "I was developed by Vasu — the creator of CampusAI.",
+            text: "I was developed by Vasu Goli — the creator of CampusAI.",
             files: [],
             timestamp: Date.now()
         });
@@ -303,24 +304,40 @@ async function sendToBackend(message) {
     try {
         const chat = getCurrentChat();
 
-        // BUILD SAFE HISTORY (text only)
-        const history = chat.messages.map(m => ({
-            role: m.role,
-            content: m.text || ""
-        }));
+        // Build correct history with both text + images
+        const history = chat.messages.map(m => {
+            if (m.files?.length > 0 && !m.text) {
+                // Image-only history entry
+                return {
+                    role: m.role,
+                    content: [
+                        ...m.files.map(f => ({
+                            type: "image_url",
+                            image_url: { url: f.data }
+                        }))
+                    ]
+                };
+            }
+
+            // Normal text message
+            return {
+                role: m.role,
+                content: m.text || ""
+            };
+        });
 
         const formData = new FormData();
         formData.append("message", message);
         formData.append("history", JSON.stringify(history));
 
-        // Append images as files
+        // Add actual file uploads for backend vision
         if (appState.attachedFiles.length > 0) {
             for (let file of appState.attachedFiles) {
                 formData.append("files", file);
             }
         }
 
-        const response = await fetch("http://localhost:5000/api/chat", {
+        const response = await fetch("https://campus-ai-chatbot.onrender.com/api/chat", {
             method: "POST",
             body: formData
         });
@@ -466,41 +483,6 @@ function renderMessages() {
     DOM.messages.scrollTop = DOM.messages.scrollHeight;
 }
 
-function createBubble(msg) {
-    const cls = msg.role === "user" ? "user-msg" : "bot-msg";
-
-    // -------------------------
-    // 1️⃣ IMAGE MESSAGES
-    // -------------------------
-    if (msg.files?.length && !msg.text) {
-        return `
-            <div class="${cls}">
-                ${createFilesGrid(msg.files)}
-                <div class="bubble-footer ${msg.role === "user" ? "user-footer" : ""}">
-                    <span class="bubble-time">${formatTimestamp(msg.timestamp)}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    // -------------------------
-    // 2️⃣ TEXT MESSAGES
-    // -------------------------
-    let html = `
-        <div class="${cls}">
-            <div class="bubble-text">${formatMessage(msg.text || "")}</div>
-            <div class="bubble-footer ${msg.role === "user" ? "user-footer" : ""}">
-                <span class="bubble-time">${formatTimestamp(msg.timestamp)}</span>
-                ${msg.role === "bot" 
-                    ? `<button class="regen-btn" data-timestamp="${msg.timestamp}">🔄</button>` 
-                    : ""
-                }
-            </div>
-        </div>
-    `;
-
-    return html;
-}
 
 
 
@@ -825,6 +807,7 @@ async function regenerateResponse(botTimestamp) {
             userMsg = chat.messages[i];
             break;
         }
+
     }
 
     if (!userMsg) return;
