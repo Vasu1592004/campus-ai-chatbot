@@ -8,7 +8,12 @@ import multer from "multer";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: "*" }));
+app.use(cors({
+    origin: ["https://vasugoli.netlify.app"],
+    methods: ["GET", "POST"],
+    credentials: true
+}));
+
 app.use(express.json({ limit: "25mb" }));
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -35,6 +40,9 @@ async function callAI(messages, retryCount = 3) {
         throw err;
     }
 }
+
+app.get("/", (req, res) => res.send("CampusAI Backend is live"));
+
 
 app.post("/api/chat", upload.array("files"), async (req, res) => {
     try {
@@ -136,4 +144,6 @@ app.post("/api/chat", upload.array("files"), async (req, res) => {
 });
 
 
-app.listen(5000, () => console.log("🚀 Backend running at http://localhost:5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
