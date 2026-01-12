@@ -58,14 +58,15 @@ function loadState() {
 ------------------------ */
 function bindEvents() {
     if (DOM.sendBtn) DOM.sendBtn.addEventListener("click", sendMessage);
+
     if (DOM.input) {
         DOM.input.addEventListener("keydown", handleInputKeydown);
         DOM.input.addEventListener("input", autoResize);
     }
-    if (DOM.scrollCenterBtn) {
-    DOM.scrollCenterBtn.addEventListener("click", scrollToBottomInstant);
-    }
 
+    if (DOM.scrollCenterBtn) {
+        DOM.scrollCenterBtn.addEventListener("click", scrollToBottomInstant);
+    }
 
     if (DOM.attachBtn) DOM.attachBtn.addEventListener("click", toggleAttachMenu);
 
@@ -75,7 +76,29 @@ function bindEvents() {
     const newChatBtn = document.querySelector(".new-chat");
     if (newChatBtn) newChatBtn.addEventListener("click", createNewChat);
 
-    // 🔥 Global click handler (existing)
+    /* ---------------------------------------------------
+       ⭐ MOBILE SIDEBAR MENU (HAMBURGER BUTTON)
+    --------------------------------------------------- */
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();         // Prevent closing instantly
+            sidebar.classList.toggle("show");
+        });
+    }
+
+    // Close sidebar when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".sidebar") && !e.target.closest("#mobileMenuBtn")) {
+            sidebar.classList.remove("show");
+        }
+    });
+    /* --------------------------------------------------- */
+
+
+    // 🔥 GLOBAL CLICK HANDLER FOR MENUS
     document.addEventListener("click", (e) => {
         const menu = document.getElementById("globalMenu");
 
@@ -83,13 +106,12 @@ function bindEvents() {
             menu.classList.remove("show");
         }
 
-        // Attach menu outside click
         if (!e.target.closest(".menu-wrapper") && !e.target.closest("#attachBtn")) {
             DOM.attachMenu.classList.remove("show");
         }
     });
 
-
+    // Regenerate logic
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("regen-btn")) {
             const ts = e.target.getAttribute("data-timestamp");
@@ -97,8 +119,7 @@ function bindEvents() {
         }
     });
 
-
-    // ⭐ SCROLL-TO-BOTTOM LISTENERS (NEW)
+    // Scroll listeners
     if (DOM.messages) {
         DOM.messages.addEventListener("scroll", checkScrollButton);
     }
@@ -107,6 +128,8 @@ function bindEvents() {
         DOM.scrollBtn.addEventListener("click", scrollToBottom);
     }
 }
+
+
 
 
 /* ------------------------
