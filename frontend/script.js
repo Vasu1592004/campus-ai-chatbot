@@ -95,6 +95,16 @@ function bindEvents() {
             sidebar.classList.remove("show");
         }
     });
+
+    document.addEventListener("click", (e) => {
+        const sidebar = document.querySelector(".sidebar");
+
+        // If clicked inside sidebar, close sidebar
+        if (e.target.closest(".sidebar") && !e.target.closest("#mobileMenuBtn")) {
+            sidebar.classList.remove("show");
+        }
+    });
+
     /* --------------------------------------------------- */
 
 
@@ -360,7 +370,7 @@ async function sendToBackend(message) {
             }
         }
 
-        const response = await fetch("https://campus-ai-chatbot.onrender.com/api/chat", {
+        const response = await fetch("http://localhost:5000/api/chat", {
             method: "POST",
             body: formData
         });
@@ -473,9 +483,16 @@ function showChatMenu(e, chatId) {
     const menu = document.getElementById("globalMenu");
     const rect = e.target.getBoundingClientRect();
 
-    // Position next to the 3-dots
-    menu.style.left = rect.right - 150 + "px";
-    menu.style.top = rect.bottom + 8 + "px";
+    // Desktop
+    if (window.innerWidth > 700) {
+        menu.style.left = (rect.right - 150) + "px";
+        menu.style.top = (rect.bottom + 8) + "px";
+    }
+    else {
+        // Mobile (always fixed, always visible)
+        menu.style.left = "20px";
+        menu.style.top = (rect.bottom + 40) + "px";
+    }
 
     menu.classList.add("show");
 
@@ -492,6 +509,9 @@ function showChatMenu(e, chatId) {
         menu.classList.remove("show");
     };
 }
+
+
+
 
 function renderMessages() {
     const chat = getCurrentChat();

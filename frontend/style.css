@@ -26,9 +26,10 @@
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden;
     background: radial-gradient(circle at top, #1c1f3a, #070814);
     color: var(--text);
+    position: fixed;
+    inset: 0;
 }
 
 /* ----------------------------------------------------------
@@ -36,9 +37,11 @@ html, body {
 ---------------------------------------------------------- */
 .app {
     display: flex;
-    height: 100vh;
+    height: 100dvh;
     width: 100%;
+    overflow: hidden;
 }
+
 
 /* SIDEBAR */
 .sidebar {
@@ -318,7 +321,10 @@ html, body {
     flex-direction: column;
     background: var(--bg-main);
     position: relative;
+    height: 100%;
+    min-height: 0; /* IMPORTANT FIX */
 }
+
 
 /* CHAT HEADER */
 .chat-header {
@@ -409,19 +415,17 @@ html, body {
 /* MAIN MESSAGE AREA */
 .messages {
     flex: 1;
-    width: 100%;
-    padding: 20px 26px 28px; /* top | left/right | bottom */
+    overflow-y: auto;
+    overflow-x: hidden;
 
+    padding: 20px 26px 12px; /* bottom padding reduced */
     display: flex;
     flex-direction: column;
     gap: 16px;
 
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    position: relative;
-    z-index: 1;
+    min-height: 0 !important; /* REMOVE EXTRA HEIGHT */
 }
+
 
 /* Subtle background glow behind messages */
 .messages::before {
@@ -550,7 +554,7 @@ html, body {
    10. CHAT INPUT AREA
 ---------------------------------------------------------- */
 .chat-input {
-    padding: 8px 14px;
+    padding: 12px 16px;
     background: rgba(10, 13, 25, 0.55);
     backdrop-filter: blur(18px);
 
@@ -560,8 +564,10 @@ html, body {
     flex-direction: column;
     gap: 8px;
 
-    position: relative;
+    position: sticky;
     z-index: 5;
+    bottom: 0;
+    width: 100%;
 }
 
 /* File preview chips */
@@ -1387,10 +1393,7 @@ a:hover {
    45. FINAL CLEAR FIXES
 ---------------------------------------------------------- */
 
-/* Prevent bottom padding issues */
-#messages {
-    padding-bottom: 26px;
-}
+
 
 /* Force history scroll */
 .sidebar {
@@ -2042,5 +2045,32 @@ a:hover {
     /* Move chat title right so they don't overlap */
     #chatIdDisplay {
         left: 50px;   /* perfect spacing */
+    }
+}
+.global-menu {
+    z-index: 200000 !important;
+}
+@media (max-width: 700px) {
+    .global-menu {
+        position: fixed;       /* instead of absolute */
+        top: auto !important;
+        left: auto !important;
+    }
+}
+/* FORCE THE GLOBAL MENU ABOVE ENTIRE UI */
+.global-menu {
+    position: fixed !important;
+    z-index: 999999 !important;
+}
+@media (max-width: 700px) {
+    .global-menu {
+        left: 20px !important;
+        top: 120px !important;
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    html, body {
+        height: -webkit-fill-available;
     }
 }

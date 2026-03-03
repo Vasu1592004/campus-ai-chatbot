@@ -1,39 +1,58 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import OpenAI from "openai";
 import fs from "fs";
 import multer from "multer";
+import fetch from "node-fetch";
 
 dotenv.config();
 
 const app = express();
+
 app.use(cors({
-    origin: ["https://vasugoli.netlify.app"],
+    origin: ["https://vasugoli.netlify.app", "http://localhost:3000"],
     methods: ["GET", "POST"],
     credentials: true
 }));
 
 app.use(express.json({ limit: "25mb" }));
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const upload = multer({ dest: "uploads/" });
 
 // Helper: Wait
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Helper: Safe API call with retry
+// Helper: Safe NVIDIA API call with retry
 async function callAI(messages, retryCount = 3) {
     try {
-        return await openai.chat.completions.create({
-            model: "gpt-4.1-mini",
-            messages
-        });
+        const response = await fetch(
+            "https://integrate.api.nvidia.com/v1/chat/completions",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.NVIDIA_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "meta/llama3-70b-instruct",
+                    messages,
+                    max_tokens: 1000,
+                    temperature: 0.7
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+        console.log("NVIDIA RAW ERROR:", data);
+        throw new Error(JSON.stringify(data));
+        }
+        return data;
 
     } catch (err) {
-        if (err.status === 429 && retryCount > 0) {
-            console.log("⏳ Rate limit hit. Retrying in 3 seconds...");
+        if (retryCount > 0) {
+            console.log("⏳ Retrying NVIDIA API...");
             await delay(3000);
             return await callAI(messages, retryCount - 1);
         }
@@ -41,8 +60,7 @@ async function callAI(messages, retryCount = 3) {
     }
 }
 
-app.get("/", (req, res) => res.send("CampusAI Backend is live"));
-
+app.get("/", (req, res) => res.send("CampusAI Backend is live (NVIDIA Mode)"));
 
 app.post("/api/chat", upload.array("files"), async (req, res) => {
     try {
@@ -53,7 +71,6 @@ app.post("/api/chat", upload.array("files"), async (req, res) => {
         const historyRaw = req.body.history || "[]";
         const userFiles = req.files || [];
 
-        // Restore history sent from frontend
         let history = [];
         try {
             history = JSON.parse(historyRaw);
@@ -61,44 +78,29 @@ app.post("/api/chat", upload.array("files"), async (req, res) => {
             history = [];
         }
 
-        // BUILD FULL MESSAGE LIST FOR OPENAI
+        // SYSTEM PROMPT
         let messages = [
             {
                 role: "system",
                 content: `
-        You are **CampusAI**, an intelligent assistant exclusively developed by **VASU**.
+You are CampusAI, an intelligent assistant developed by VASU.
 
-        IDENTITY RULES (VERY IMPORTANT):
-        - You are not ChatGPT, not OpenAI, not an OpenAI assistant.
-        - Never say you were made or developed by OpenAI.
-        - If ANY question is asked like:
-            • who developed you  
-            • who made you  
-            • who created you  
-            • who designed you  
-            • who built this bot  
-            • what company are you from  
-            • who is behind you  
-        ALWAYS answer: "I was developed by VASU — the creator of CampusAI."
+IDENTITY RULES:
+- You are not ChatGPT.
+- You are not OpenAI.
+- If asked who developed you, always reply:
+"I was developed by VASU — the creator of CampusAI."
 
-        - If asked about your model, reply:
-        "I run on an AI model integrated and customized by VASU for CampusAI."
-
-        RESPONSE STYLE RULES:
-        - Respond in ChatGPT-style formatting.
-        - Always use structured answers:
-            • clear paragraphs  
-            • bullet points when helpful  
-            • step-by-step explanations  
-            • headings for long answers  
-        - Never give short or one-line replies.
-        - Always answer professionally, clearly, and in detail.
-        `
+RESPONSE STYLE:
+- Structured responses
+- Headings for long answers
+- Bullet points when needed
+- Clear explanations
+`
             }
         ];
 
-
-        // ADD FULL CHAT HISTORY (text only)
+        // Add history
         for (const msg of history) {
             messages.push({
                 role: msg.role,
@@ -106,12 +108,12 @@ app.post("/api/chat", upload.array("files"), async (req, res) => {
             });
         }
 
-        // ADD CURRENT USER TEXT
+        // Add user text
         if (textMessage) {
             messages.push({ role: "user", content: textMessage });
         }
 
-        // ADD IMAGES (Vision input)
+        // Add images (if any)
         for (const file of userFiles) {
             const fileBuffer = fs.readFileSync(file.path);
             const base64Image = `data:${file.mimetype};base64,${fileBuffer.toString("base64")}`;
@@ -127,13 +129,12 @@ app.post("/api/chat", upload.array("files"), async (req, res) => {
             });
         }
 
-        // 🔥 AI CALL (Chat Format)
-        const result = await openai.chat.completions.create({
-            model: "gpt-4.1-mini",
-            messages
-        });
+        // 🔥 NVIDIA CALL
+        const result = await callAI(messages);
 
-        const aiReply = result.choices[0].message.content;
+        const aiReply =
+            result.choices?.[0]?.message?.content ||
+            "⚠️ No response from NVIDIA model";
 
         return res.json({ reply: aiReply });
 
@@ -143,7 +144,5 @@ app.post("/api/chat", upload.array("files"), async (req, res) => {
     }
 });
 
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
