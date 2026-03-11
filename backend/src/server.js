@@ -10,9 +10,9 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: ["https://vasugoli.netlify.app", "http://localhost:3000"],
-    methods: ["GET", "POST"],
-    credentials: true
+  origin: ["https://vasugoli.netlify.app", "http://localhost:3000"],
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
 }));
 
 app.use(express.json({ limit: "25mb" }));
