@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
 import multer from "multer";
-import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -14,7 +13,7 @@ app.use(cors({
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
-app.options("*", cors());
+app.options("/*", cors());
 
 app.use(express.json({ limit: "25mb" }));
 
